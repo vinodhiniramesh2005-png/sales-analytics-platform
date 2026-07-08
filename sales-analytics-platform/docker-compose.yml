@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: pulse-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_reports:/app/reports
+      - backend_charts:/app/charts
+      - backend_database:/app/database
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-this-to-a-long-random-string-in-production}
+      - DATABASE_URL=sqlite:///./database/app.db
+      - CORS_ORIGINS=http://localhost:3000
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    container_name: pulse-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    restart: unless-stopped
+
+volumes:
+  backend_uploads:
+  backend_reports:
+  backend_charts:
+  backend_database:
